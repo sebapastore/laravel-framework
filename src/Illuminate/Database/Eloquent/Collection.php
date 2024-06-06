@@ -85,12 +85,14 @@ class Collection extends BaseCollection implements QueueableCollection
             return $this;
         }
 
-        $models = $this->first()->newModelQuery()
-            ->whereKey($this->modelKeys())
-            ->select($this->first()->getKeyName())
-            ->withAggregate($relations, $column, $function)
-            ->get()
-            ->keyBy($this->first()->getKeyName());
+        $models = $this->first()::withoutEvents(fn () =>
+            $this->first()->newModelQuery()
+                ->whereKey($this->modelKeys())
+                ->select($this->first()->getKeyName())
+                ->withAggregate($relations, $column, $function)
+                ->get()
+                ->keyBy($this->first()->getKeyName())
+        );
 
         $attributes = Arr::except(
             array_keys($models->first()->getAttributes()),
